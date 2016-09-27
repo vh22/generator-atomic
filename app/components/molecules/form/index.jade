@@ -1,0 +1,13 @@
+include ../../atoms/button/index
+mixin form-field(data)
+    - var _data = data || {}
+    .form-field(_data)
+        if block
+            block
+
+mixin form(data)
+    - var _data = data || {}
+    form(action="#", novalidate).form&attributes(_data)
+        if block
+            block
+            +button-submit("Submit")

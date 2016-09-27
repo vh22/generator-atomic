@@ -1,0 +1,11 @@
+mixin button(text, data)
+    - var _data = data || {}
+    button(type="button").btn&attributes(_data) #{text}
+
+mixin button-submit(text, data)
+    - var _data = data || {}
+    button(type="submit").btn&attributes(_data) #{text}
+
+mixin button-link(text, data)
+    - var _data = data || {}
+    a(href="#").btn&attributes(_data) #{text}
