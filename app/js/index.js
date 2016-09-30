@@ -1,1 +1,1 @@
-require('./../components/atoms/atoms');
+require('../_components/molecules/form/index');

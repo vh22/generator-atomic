@@ -13,6 +13,19 @@ function lazyRequireTask(taskName, path, options) {
     });
 }
 
+gulp.task('setWatch', function(cb) {
+    global.isWatching = true;
+    cb();
+});
+
+gulp.task('watch', function () {
+    gulp.watch(paths.dev.folder + '**/' + paths.dev.templates, gulp.series('template'));
+});
+
 lazyRequireTask('js', './tasks/js/js-assembly.js');
 
-gulp.task('default', gulp.parallel('js'));
+lazyRequireTask('template', './tasks/template/template-assembly.js');
+
+gulp.task('dev', gulp.series('setWatch', 'js', 'template'));
+
+gulp.task('default', gulp.series('setWatch', 'template', 'watch'));

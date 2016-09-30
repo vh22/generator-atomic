@@ -6,8 +6,8 @@ module.exports = {
             $(btnScrollTop).on('click', function () {
                 console.log('dasdas');
                 const body = $('body');
-                let offsetTop = body.scrollTop();
-                if (offsetTop !== 0) {
+                let bodyOffsetTop = body.scrollTop();
+                if (bodyOffsetTop !== 0) {
                     body.animate({scrollTop: 0}, '250');
                 }
             });
