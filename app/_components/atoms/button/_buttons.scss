@@ -1,0 +1,13 @@
+.btn {
+  display: flex;
+  transition: all .3s;
+  user-select: none;
+  background: linear-gradient(to bottom, white, black);
+}
+
+@media screen and (min-width: 768px) {
+  .btn {
+    padding: 1px;
+    font-size: 1.2em;
+  }
+}

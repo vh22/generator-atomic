@@ -1,25 +1,28 @@
 'use strict';
 
 const gulp = require('gulp');
-const pugInheritance = require('gulp-pug-inheritance');
-const debug = require('gulp-debug');
+const path = require('path');
 const $ = require('gulp-load-plugins')();
 const paths = require('../../sliceart_modules/paths');
+// const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV == 'development';
 
 module.exports = (options) => {
     return () => {
         /**
          * task options
          * */
-        const isDevelopment = options.isDevelopment || true;
-        const srcFiles = options.src || paths.dev.folder + '**/' + paths.dev.templates;
+        // let isDevelopment;
+        // if (options.isDevelopment === undefined) {
+        //     isDevelopment = true;
+        // } else {
+        //     isDevelopment = Boolean(options.isDevelopment);
+        // }
+        const templateSrcFolder = options.templateSrcFolder || paths.dev.masterFolder;
+        const srcFiles = options.src || templateSrcFolder + paths.dev.template.recursiveFiles;
         const dest = options.dest || paths.dev.publicFolder;
-        const isRelativeRefresh = options.relativeRefresh || true;
-        const templateSrcFolder = options.templateSrcFolder || paths.dev.folder;
-        const isDataJson = options.isDataJson || false;
-        const templateOptions = options.templateOptions || {
-                pretty: true
-            };
+        // const isRelativeRefresh = options.relativeRefresh || true;
+        // const isDataJson = options.isDataJson || false;
+        const templateOptions = options.templateOptions || {pretty: true};
         /**
          * template assembly task
          * */
@@ -30,11 +33,9 @@ module.exports = (options) => {
                     message: err.message
                 }))
             }))
-            .pipe(debug({title: 'before'}))
             // .pipe($.changed(dest, {extension: '.html'}))
-            .pipe($.if(global.isWatching, $.cached('template')))
-            .pipe(pugInheritance({basedir: 'app'}))
-            .pipe(debug({title: 'after'}))
+            // .pipe($.if(global.isWatching, $.cached('template')))
+            // .pipe(pugInheritance({basedir: path.join(__dirname, paths.dev.masterFolder)}))
             .pipe($.filter(function (file) {
                 return !/\/_/.test(file.path) && !/^_/.test(file.relative);
             }))

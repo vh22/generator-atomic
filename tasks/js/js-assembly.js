@@ -9,7 +9,8 @@ const glob = require('glob-all');
 const path = require('path');
 const named = require('vinyl-named');
 const gulplog = require('gulplog');
-const AssetsPlugin = require('assets-webpack-plugin');
+// const AssetsPlugin = require('assets-webpack-plugin');
+// const isDevelopment = !process.env.NODE_ENV || process.env.NODE_ENV == 'development';
 
 module.exports = (options) => {
     return (callback) => {
@@ -25,34 +26,37 @@ module.exports = (options) => {
                 return;  // emit('error', err) in webpack-stream
             }
 
-            gulplog[stats.hasErrors() ? 'error' : 'info'](stats.toString({
-                colors: true
-            }));
+            gulplog[stats.hasErrors() ? 'error' : 'info'](stats.toString({colors: true}));
 
         }
 
         /**
          * task options
          * */
-        const isDevelopment = options.isProduction || true;
-        const isBabel = options.isBabel || true;
-        // const bundleExtName = options.extname || '.bundle.js';
-        /**
-         * inner variables
-         * */
-        // let bundleFiles = paths.dev.pathToProjectJsFiles.substring(0, paths.dev.pathToProjectJsFiles.length - 3) + bundleExtName;
-        // let excludeBundleFiles = '!' + bundleFiles;
+        let isBabel;
+        let isDevelopment;
+        if (options.isBabel === undefined) {
+            isBabel = true;
+        } else {
+            isBabel = Boolean(options.isBabel)
+        }
+        if (options.isDevelopment === undefined) {
+            isDevelopment = true;
+        } else {
+            isDevelopment = Boolean(options.isDevelopment);
+        }
         /**
          * task options
          * */
-        const srcFiles = options.src || paths.dev.pathToProjectJsFiles;
+        const srcFiles = options.src || paths.dev.masterJsFiles;
+        const dest = options.dest || paths.dev.publicJsFolder;
         /**
          * webpackStream settings
          * */
         let webpackOption = {
             output: {
-                publicPath: '/' + paths.dev.pathToPublicJsFolder,
-                filename: isDevelopment ? '[name].js' : '[name]-[chunkhash:10].js',
+                publicPath: '/' + paths.dev.publicJsFolder,
+                filename: '[name].js',
                 library: '[name]'
             },
             devtool: isDevelopment ? 'cheap-module-inline-source-map' : null,
@@ -81,22 +85,22 @@ module.exports = (options) => {
          * data for webpack files manifest
          * */
         if (!isDevelopment) {
-            webpackOption.plugins.push(new AssetsPlugin({
-                filename: 'webpack.json',
-                path: paths.dev.pathToProjectConfigsFolder + 'manifest/',
-                processOutput(assets) {
-                    for (let key in assets) {
-                        assets[key + '.js'] = assets[key].js.slice(webpackOption.output.publicPath.length);
-                        delete assets[key];
-                    }
-                    return JSON.stringify(assets);
-                }
-            }));
+            // webpackOption.plugins.push(new AssetsPlugin({
+            //     filename: 'webpack.json',
+            //     path: paths.dev.masterConfigsFolder + 'manifest/',
+            //     processOutput(assets) {
+            //         for (let key in assets) {
+            //             assets[key + '.js'] = assets[key].js.slice(webpackOption.output.publicPath.length);
+            //             delete assets[key];
+            //         }
+            //         return JSON.stringify(assets);
+            //     }
+            // }));
         }
         if (isBabel) {
             webpackOption.module.loaders.push({
                 test: /.js?$/,
-                include: path.join(__dirname, '../../', paths.dev.folder),
+                include: path.join(__dirname, '../../', paths.dev.masterFolder),
                 loader: 'babel?presets[]=es2015'
             });
         }
@@ -114,7 +118,7 @@ module.exports = (options) => {
             .pipe(named())
             .pipe(webpackStream(webpackOption, null, done))
             .pipe($.if(!isDevelopment, $.uglify()))
-            .pipe(gulp.dest(paths.dev.pathToPublicJsFolder))
+            .pipe(gulp.dest(dest))
             .on('data', function () {
                 if (firstBuildReady) {
                     callback();

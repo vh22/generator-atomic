@@ -7,7 +7,7 @@ mixin form-field(data)
 
 mixin form(data)
     - var _data = data || {}
-    form(action="#12", novalidate).form&attributes(_data)
+    form(action="#", novalidate).form&attributes(_data)
         if block
             block
             +button-submit("Submit")

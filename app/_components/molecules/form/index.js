@@ -1,6 +1,7 @@
 module.exports = {
     formValidation: function () {
         const formWithValidation = document.querySelectorAll('[data-form-with-validation]');
+        const formWithValidation1 = document.querySelectorAll('[data-form-with-validation1]');
 
         if (formWithValidation.length) {
             formWithValidation.on('click', function () {

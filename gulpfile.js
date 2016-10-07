@@ -13,19 +13,61 @@ function lazyRequireTask(taskName, path, options) {
     });
 }
 
-gulp.task('setWatch', function(cb) {
-    global.isWatching = true;
-    cb();
+/**
+ * Common tasks
+ * */
+
+lazyRequireTask('clean-public', './tasks/clean.js', {
+    src: paths.dev.publicFolder
 });
 
-gulp.task('watch', function () {
-    gulp.watch(paths.dev.folder + '**/' + paths.dev.templates, gulp.series('template'));
+lazyRequireTask('copy-images', './tasks/copy.js', {
+    src: paths.dev.masterAllImagesFiles,
+    excludeSrc: paths.dev.masterAllSpritesSrcFiles,
+    dest: paths.dev.publicImagesFolder
 });
 
-lazyRequireTask('js', './tasks/js/js-assembly.js');
+lazyRequireTask('copy-fonts', './tasks/copy.js', {
+    src: paths.dev.masterAllFontsFiles,
+    dest: paths.dev.publicFontsFolder
+});
 
-lazyRequireTask('template', './tasks/template/template-assembly.js');
+/**
+ * Tasks for development
+ * */
 
-gulp.task('dev', gulp.series('setWatch', 'js', 'template'));
+lazyRequireTask('set-watch', './tasks/set-watch.js');
 
-gulp.task('default', gulp.series('setWatch', 'template', 'watch'));
+lazyRequireTask('watch', './tasks/watch.js');
+
+lazyRequireTask('assembly-dev-js', './tasks/js/js-assembly.js');
+
+lazyRequireTask('assembly-dev-template', './tasks/template/template-assembly.js');
+
+lazyRequireTask('assembly-dev-style', './tasks/style/style-assembly.js');
+
+gulp.task('assembly-dev', gulp.series('set-watch', gulp.parallel('assembly-dev-js', 'assembly-dev-template', 'assembly-dev-style')));
+
+/**
+ * Tasks for production
+ * */
+
+lazyRequireTask('assembly-prod-js', './tasks/js/js-assembly.js', {
+    isDevelopment: false
+});
+
+lazyRequireTask('assembly-prod-template', './tasks/template/template-assembly.js', {
+    isDevelopment: false
+});
+
+lazyRequireTask('assembly-prod-style', './tasks/style/style-assembly.js', {
+    isDevelopment: false
+});
+
+gulp.task('prod', gulp.series('clean-public', gulp.parallel('copy-images', 'copy-fonts', 'assembly-prod-js', 'assembly-prod-template', 'assembly-prod-style')));
+
+/**
+ * Task by default
+ * */
+
+gulp.task('default', gulp.series('clean-public', 'set-watch', 'assembly-dev', 'watch'));
